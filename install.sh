@@ -59,7 +59,7 @@ else
     else
         # Merge hook into existing settings.json using Python
         python3 - <<PYEOF
-import json, sys
+import json
 with open("$SETTINGS", "r") as f:
     settings = json.load(f)
 hook = {
