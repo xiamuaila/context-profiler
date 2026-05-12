@@ -110,6 +110,7 @@ def analyze_session(session_file: Path) -> dict:
     bash_stats = {"tokens": 0, "calls": 0}
     other_tools_stats = {"tokens": 0, "calls": 0}
     assistant_text_tokens = user_text_tokens = tool_use_meta_tokens = 0
+    tool_use_meta_by_tool: dict[str, int] = {}
 
     for e in entries:
         msg = e.get("message", {})
@@ -123,7 +124,10 @@ def analyze_session(session_file: Path) -> dict:
                 if block.get("type") == "text":
                     assistant_text_tokens += count_tokens(block.get("text", ""))
                 elif block.get("type") == "tool_use":
-                    tool_use_meta_tokens += count_tokens(json.dumps(block.get("input", {})))
+                    t = count_tokens(json.dumps(block.get("input", {})))
+                    tool_use_meta_tokens += t
+                    name = block.get("name", "unknown")
+                    tool_use_meta_by_tool[name] = tool_use_meta_by_tool.get(name, 0) + t
         elif role == "user":
             content_blocks = msg.get("content", [])
             if isinstance(content_blocks, str):
@@ -168,7 +172,7 @@ def analyze_session(session_file: Path) -> dict:
         "files": dict(files), "bash": bash_stats, "other_tools": other_tools_stats,
         "assistant_text": {"tokens": assistant_text_tokens},
         "user_text": {"tokens": user_text_tokens},
-        "tool_use_meta": {"tokens": tool_use_meta_tokens},
+        "tool_use_meta": {"tokens": tool_use_meta_tokens, "by_tool": tool_use_meta_by_tool},
         "unattributed": max(0, input_tokens - jsonl_tracked),
         "compaction_events": compaction_events,
         "model": model, "context_window": get_context_window(model),
