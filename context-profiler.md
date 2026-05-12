@@ -223,7 +223,11 @@ If the repo is not found, tell the user they need to copy `dashboard.html` from 
 mkdir -p /tmp/data-gym-cache
 TIKTOKEN_URL="https://openaipublic.blob.core.windows.net/encodings/cl100k_base.tiktoken"
 CACHE_KEY=$(python3 -c "import hashlib; print(hashlib.sha1('$TIKTOKEN_URL'.encode()).hexdigest())")
-[ -f "/tmp/data-gym-cache/$CACHE_KEY" ] || curl -k -s -o "/tmp/data-gym-cache/$CACHE_KEY" "$TIKTOKEN_URL" && echo "tiktoken cached" || echo "tiktoken download failed, will use char/4 fallback"
+if [ ! -f "/tmp/data-gym-cache/$CACHE_KEY" ]; then
+    curl -k -s -o "/tmp/data-gym-cache/$CACHE_KEY" "$TIKTOKEN_URL" && echo "tiktoken cached" || echo "tiktoken download failed, will use char/4 fallback"
+else
+    echo "tiktoken already cached"
+fi
 ```
 
 ## Step 5 — Install global PostToolUse hook

@@ -245,6 +245,9 @@
 </div>
 
 <script>
+    function escHtml(s) {
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
     function fmt(n) { return Number(n).toLocaleString(); }
     function pct(a, b) { return b > 0 ? Math.min(100, a / b * 100).toFixed(1) : 0; }
 
@@ -354,7 +357,7 @@
             ? '<tr><td colspan="4" class="empty">本次会话尚未读取任何文件</td></tr>'
             : sorted.map(([path, info]) => `
                 <tr>
-                    <td><div class="file-path">${path}</div></td>
+                    <td><div class="file-path">${escHtml(path)}</div></td>
                     <td><span class="token-num">${fmt(info.tokens)}</span></td>
                     <td><span class="reads-badge">×${info.reads}</span></td>
                     <td>

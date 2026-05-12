@@ -17,12 +17,12 @@ from collections import defaultdict
 
 STATS_FILE = Path(__file__).parent / "context_stats.json"
 SESSIONS_BASE = Path.home() / ".claude/projects"
-ENCODING = tiktoken.get_encoding("cl100k_base")
 
 
 def count_tokens(text: str) -> int:
     try:
-        return len(ENCODING.encode(text))
+        encoding = tiktoken.get_encoding("cl100k_base")
+        return len(encoding.encode(text))
     except Exception:
         return len(text) // 4
 
@@ -34,6 +34,8 @@ def find_session_file(session_id: str, cwd: str) -> Path | None:
     if candidate.exists():
         return candidate
     # Fallback: search all project dirs
+    if not SESSIONS_BASE.exists():
+        return None
     for project_dir in SESSIONS_BASE.iterdir():
         candidate = project_dir / f"{session_id}.jsonl"
         if candidate.exists():
