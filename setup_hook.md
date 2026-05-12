@@ -39,7 +39,7 @@ print(hashlib.sha1(url.encode()).hexdigest())
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /absolute/path/to/context-token/session_analyzer.py",
+            "command": "python3 /absolute/path/to/context-profiler/session_analyzer.py",
             "statusMessage": "分析上下文 Token 占用..."
           }
         ]
@@ -54,7 +54,7 @@ print(hashlib.sha1(url.encode()).hexdigest())
 ## 4. 启动 Dashboard
 
 ```bash
-cd /path/to/context-token
+cd /path/to/context-profiler
 python3 -m http.server 17856
 ```
 

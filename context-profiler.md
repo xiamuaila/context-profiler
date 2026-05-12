@@ -198,11 +198,11 @@ if __name__ == "__main__":
 
 ## Step 3 — Copy dashboard.html
 
-Check if the user has already cloned the context-token repo. If yes, copy the dashboard:
+Check if the user has already cloned the context-profiler repo. If yes, copy the dashboard:
 
 ```bash
 # Find the repo if already cloned
-REPO=$(find ~ -name "dashboard.html" -path "*/context-token/*" 2>/dev/null | head -1 | xargs dirname 2>/dev/null)
+REPO=$(find ~ -name "dashboard.html" -path "*/context-profiler/*" 2>/dev/null | head -1 | xargs dirname 2>/dev/null)
 if [ -n "$REPO" ]; then
     cp "$REPO/dashboard.html" ~/.claude/context-profiler/dashboard.html
     echo "Copied dashboard.html from $REPO"

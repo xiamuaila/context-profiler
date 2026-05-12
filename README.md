@@ -33,7 +33,7 @@
 首先 clone 仓库：
 
 ```bash
-git clone https://github.com/your-username/context-token.git
+git clone https://github.com/your-username/context-profiler.git
 ```
 
 ---
@@ -44,7 +44,7 @@ Skill 文件内嵌了完整的 `session_analyzer.py`，并能自动找到 `dashb
 
 ```bash
 mkdir -p ~/.claude/skills
-cp context-token/context-profiler.md ~/.claude/skills/
+cp context-profiler/context-profiler.md ~/.claude/skills/
 ```
 
 然后在任意 Claude Code 会话中运行：
@@ -64,7 +64,7 @@ rm ~/.claude/skills/context-profiler.md
 ### 方式二：Shell 脚本
 
 ```bash
-cd context-token
+cd context-profiler
 bash install.sh
 ```
 
@@ -105,7 +105,7 @@ pip install tiktoken
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /absolute/path/to/context-token/session_analyzer.py",
+            "command": "python3 /absolute/path/to/context-profiler/session_analyzer.py",
             "statusMessage": "分析上下文 Token 占用..."
           }
         ]
@@ -118,7 +118,7 @@ pip install tiktoken
 **3. 启动 Dashboard**
 
 ```bash
-cd /path/to/context-token
+cd /path/to/context-profiler
 python3 -m http.server 17856
 ```
 
@@ -254,7 +254,7 @@ tool_result(tool_use_id=toolu_xxx, content="1\tline1\n2\tline2...")
 ## 文件结构
 
 ```
-context-token/
+context-profiler/
 ├── session_analyzer.py    # 核心：解析 JSONL，输出 context_stats.json
 ├── dashboard.html         # 可视化 Dashboard（浏览器打开）
 ├── install.sh             # 一键安装脚本
