@@ -1,0 +1,13 @@
+# 运行时生成，不应提交
+context_stats.json
+
+# 本机权限配置，包含机器特定路径
+.claude/settings.local.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# macOS
+.DS_Store

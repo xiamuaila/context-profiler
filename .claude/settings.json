@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /home/admin/workspace/context-token/session_analyzer.py",
+            "statusMessage": "分析上下文 Token 占用..."
+          }
+        ]
+      }
+    ]
+  }
+}
