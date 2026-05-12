@@ -43,8 +43,8 @@ git clone https://github.com/xiamuaila/context-profiler.git
 Skill 文件内嵌了完整的 `session_analyzer.py`，并能自动找到 `dashboard.html`、智能合并 `~/.claude/settings.json`（不会破坏已有配置）、启动 Dashboard——全程在 Claude Code 内完成，无需切换终端。
 
 ```bash
-mkdir -p ~/.claude/skills
-cp context-profiler/context-profiler.md ~/.claude/skills/
+mkdir -p ~/.claude/skills/context-profiler
+cp context-profiler/context-profiler.md ~/.claude/skills/context-profiler/
 ```
 
 然后在任意 Claude Code 会话中运行：
@@ -53,10 +53,10 @@ cp context-profiler/context-profiler.md ~/.claude/skills/
 /context-profiler
 ```
 
-Claude 会引导你完成全部步骤。安装完成后可删除 skill 文件（节省 ~1.9k tokens/会话）：
+Claude 会引导你完成全部步骤。安装完成后可删除 skill 目录（节省 ~1.9k tokens/会话）：
 
 ```bash
-rm ~/.claude/skills/context-profiler.md
+rm -rf ~/.claude/skills/context-profiler
 ```
 
 ---

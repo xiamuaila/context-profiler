@@ -57,19 +57,25 @@ else
     if grep -q "context-profiler" "$SETTINGS" 2>/dev/null; then
         echo "    ✓ Hook already present in $SETTINGS"
     else
-        echo ""
-        echo "    ⚠ $SETTINGS already exists."
-        echo "    Please add the following to the PostToolUse hooks manually:"
-        echo ""
-        echo '    {'
-        echo '      "matcher": ".*",'
-        echo '      "hooks": [{'
-        echo '        "type": "command",'
-        echo "        \"command\": \"$HOOK_CMD\","
-        echo '        "statusMessage": "分析上下文 Token 占用..."'
-        echo '      }]'
-        echo '    }'
-        echo ""
+        # Merge hook into existing settings.json using Python
+        python3 - <<PYEOF
+import json, sys
+with open("$SETTINGS", "r") as f:
+    settings = json.load(f)
+hook = {
+    "matcher": ".*",
+    "hooks": [{
+        "type": "command",
+        "command": "$HOOK_CMD",
+        "statusMessage": "分析上下文 Token 占用..."
+    }]
+}
+settings.setdefault("hooks", {}).setdefault("PostToolUse", []).append(hook)
+with open("$SETTINGS", "w") as f:
+    json.dump(settings, f, indent=2, ensure_ascii=False)
+    f.write("\n")
+print("    ✓ Hook merged into $SETTINGS")
+PYEOF
     fi
 fi
 
