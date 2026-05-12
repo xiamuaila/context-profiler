@@ -1,16 +1,2 @@
-{
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": ".*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 /path/to/context-profiler/session_analyzer.py",
-            "statusMessage": "分析上下文 Token 占用..."
-          }
-        ]
-      }
-    ]
-  }
-}
+{}
+
