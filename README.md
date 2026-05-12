@@ -33,7 +33,7 @@
 首先 clone 仓库：
 
 ```bash
-git clone https://github.com/your-username/context-profiler.git
+git clone https://github.com/xiamuaila/context-profiler.git
 ```
 
 ---
