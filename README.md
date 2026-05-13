@@ -44,7 +44,7 @@ Skill 文件内嵌了完整的 `session_analyzer.py`，并能自动找到 `dashb
 
 ```bash
 mkdir -p ~/.claude/skills/context-profiler
-cp context-profiler/context-profiler.md ~/.claude/skills/context-profiler/
+cp context-profiler/context-profiler.md ~/.claude/skills/context-profiler/SKILL.md
 ```
 
 然后在任意 Claude Code 会话中运行：
