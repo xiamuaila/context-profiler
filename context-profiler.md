@@ -1,6 +1,6 @@
 ---
 name: context-profiler
-description: Install the Claude Code Context Profiler — tracks per-file and per-command token usage by parsing Claude Code JSONL session files. Run /context-profiler to install. Safe to delete this skill file after installation (~2k tokens saved per conversation).
+description: Install the Claude Code Context Profiler — tracks per-file and per-command token usage by parsing Claude Code JSONL session files. Run /context-profiler to install.
 ---
 
 # Context Profiler Installer
@@ -695,7 +695,3 @@ Tell the user:
 - Dashboard shows per-file token usage, Bash output, cache efficiency, and context window utilization
 - File/Bash stats are **accurate** (from `tool_result` content in JSONL); conversation text stats are **JSONL lower-bounds** (Claude Code injects extra content at API time that isn't stored in JSONL)
 - Use `/context` in Claude Code for the system-side breakdown (system prompt, tool definitions, skills)
-- **Tip**: safely delete this skill file after installation to save ~2k tokens per conversation:
-  ```bash
-  rm -rf ~/.claude/skills/context-profiler
-  ```

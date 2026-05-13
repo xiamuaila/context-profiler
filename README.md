@@ -53,11 +53,7 @@ cp context-profiler/context-profiler.md ~/.claude/skills/context-profiler/SKILL.
 /context-profiler
 ```
 
-Claude 会引导你完成全部步骤。安装完成后可删除 skill 目录（节省 ~1.9k tokens/会话）：
-
-```bash
-rm -rf ~/.claude/skills/context-profiler
-```
+Claude 会引导你完成全部步骤。
 
 ---
 
