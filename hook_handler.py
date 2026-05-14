@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """
-Claude Code Hook Handler for File Context Profiling.
-This script is triggered by the PostToolUse hook when a 'Read' tool is executed.
-It calculates the token usage of the read file and appends it to a local stats file.
+DEPRECATED: superseded by session_analyzer.py, which parses JSONL directly
+and measures what the model actually received. This file is kept for reference only.
+
+Original approach: re-read the file from disk on every Read tool call.
+Fundamental limitation: token counts reflect current file state, not what
+the model received (may differ due to line offsets, file edits mid-session, etc.).
 """
 
 import sys
@@ -67,7 +70,7 @@ def main():
     if file_path not in stats:
         stats[file_path] = {"tokens": 0, "reads": 0}
     
-    stats[file_path]["tokens"] = token_count  # Overwrite with latest count
+    stats[file_path]["tokens"] += token_count  # accumulate across reads
     stats[file_path]["reads"] += 1
 
     # Write back to stats file

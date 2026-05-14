@@ -58,23 +58,21 @@ else
         echo "    ✓ Hook already present in $SETTINGS"
     else
         # Merge hook into existing settings.json using Python
-        python3 - <<PYEOF
-import json
-with open("$SETTINGS", "r") as f:
+        SETTINGS_PATH="$SETTINGS" HOOK_CMD="$HOOK_CMD" python3 - <<'PYEOF'
+import json, os
+p = os.environ["SETTINGS_PATH"]
+cmd = os.environ["HOOK_CMD"]
+with open(p, "r", encoding="utf-8") as f:
     settings = json.load(f)
 hook = {
     "matcher": ".*",
-    "hooks": [{
-        "type": "command",
-        "command": "$HOOK_CMD",
-        "statusMessage": "分析上下文 Token 占用..."
-    }]
+    "hooks": [{"type": "command", "command": cmd, "statusMessage": "分析上下文 Token 占用..."}],
 }
 settings.setdefault("hooks", {}).setdefault("PostToolUse", []).append(hook)
-with open("$SETTINGS", "w") as f:
+with open(p, "w", encoding="utf-8") as f:
     json.dump(settings, f, indent=2, ensure_ascii=False)
     f.write("\n")
-print("    ✓ Hook merged into $SETTINGS")
+print(f"    ✓ Hook merged into {p}")
 PYEOF
     fi
 fi

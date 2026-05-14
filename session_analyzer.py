@@ -11,7 +11,6 @@ the session's JSONL directly — so it measures what the model actually received
 import sys
 import json
 import os
-import tiktoken
 from pathlib import Path
 from collections import defaultdict
 
@@ -21,6 +20,7 @@ SESSIONS_BASE = Path.home() / ".claude/projects"
 
 def count_tokens(text: str) -> int:
     try:
+        import tiktoken
         encoding = tiktoken.get_encoding("cl100k_base")
         return len(encoding.encode(text))
     except Exception:
