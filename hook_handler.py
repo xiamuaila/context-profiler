@@ -63,7 +63,7 @@ def main():
         try:
             with open(STATS_FILE, 'r', encoding='utf-8') as f:
                 stats = json.load(f)
-        except:
+        except Exception:
             stats = {}
 
     # Accumulate stats

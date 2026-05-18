@@ -22,9 +22,14 @@ mkdir -p "$TIKTOKEN_CACHE_DIR"
 CACHE_KEY=$(python3 -c "import hashlib; print(hashlib.sha1('$TIKTOKEN_URL'.encode()).hexdigest())")
 if [ ! -f "$TIKTOKEN_CACHE_DIR/$CACHE_KEY" ]; then
     echo "    Downloading tiktoken BPE file..."
-    curl -k -s -o "$TIKTOKEN_CACHE_DIR/$CACHE_KEY" "$TIKTOKEN_URL" && \
-        echo "    ✓ tiktoken BPE cached" || \
-        echo "    ⚠ tiktoken download failed, will use char/4 approximation"
+    if curl -s -o "$TIKTOKEN_CACHE_DIR/$CACHE_KEY" "$TIKTOKEN_URL" 2>/dev/null; then
+        echo "    ✓ tiktoken BPE cached"
+    else
+        echo "    ⚠ tiktoken download failed (SSL?), retrying with -k..."
+        curl -k -s -o "$TIKTOKEN_CACHE_DIR/$CACHE_KEY" "$TIKTOKEN_URL" && \
+            echo "    ✓ tiktoken BPE cached (insecure fallback)" || \
+            echo "    ⚠ tiktoken download failed, will use char/4 approximation"
+    fi
 else
     echo "    ✓ tiktoken BPE already cached"
 fi
@@ -33,25 +38,25 @@ fi
 HOOK_CMD="python3 $INSTALL_DIR/session_analyzer.py"
 
 if [ ! -f "$SETTINGS" ]; then
-    cat > "$SETTINGS" <<EOF
-{
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": ".*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOOK_CMD",
-            "statusMessage": "分析上下文 Token 占用..."
-          }
+    SETTINGS_PATH="$SETTINGS" HOOK_CMD="$HOOK_CMD" python3 - <<'PYEOF'
+import json, os
+p = os.environ["SETTINGS_PATH"]
+cmd = os.environ["HOOK_CMD"]
+settings = {
+    "hooks": {
+        "PostToolUse": [
+            {
+                "matcher": ".*",
+                "hooks": [{"type": "command", "command": cmd, "statusMessage": "分析上下文 Token 占用..."}],
+            }
         ]
-      }
-    ]
-  }
+    }
 }
-EOF
-    echo "    ✓ Created $SETTINGS with hook"
+with open(p, "w", encoding="utf-8") as f:
+    json.dump(settings, f, indent=2, ensure_ascii=False)
+    f.write("\n")
+print(f"    ✓ Created {p} with hook")
+PYEOF
 else
     # Check if our hook is already present
     if grep -q "context-profiler" "$SETTINGS" 2>/dev/null; then

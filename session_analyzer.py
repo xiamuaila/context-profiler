@@ -19,6 +19,13 @@ SESSIONS_BASE = Path.home() / ".claude/projects"
 
 
 def count_tokens(text: str) -> int:
+    """Estimate token count using cl100k_base (GPT-4 tokenizer).
+
+    This is NOT Claude's actual tokenizer — counts are approximate and may
+    deviate by 5-30% depending on content (especially CJK text).  Used only
+    for relative attribution (which file costs the most), not absolute totals.
+    Absolute totals come from the API's usage field.
+    """
     try:
         import tiktoken
         encoding = tiktoken.get_encoding("cl100k_base")
@@ -28,18 +35,20 @@ def count_tokens(text: str) -> int:
 
 
 def find_session_file(session_id: str, cwd: str) -> Path | None:
-    # Claude Code hashes the cwd by replacing '/' with '-'
+    # Claude Code encodes the cwd by replacing '/' with '-'
     hashed_cwd = cwd.replace("/", "-")
     candidate = SESSIONS_BASE / hashed_cwd / f"{session_id}.jsonl"
     if candidate.exists():
         return candidate
-    # Fallback: search all project dirs
+    # Fallback: search all project dirs for a matching session_id
     if not SESSIONS_BASE.exists():
+        print(f"[context-profiler] sessions base not found: {SESSIONS_BASE}", file=sys.stderr)
         return None
     for project_dir in SESSIONS_BASE.iterdir():
         candidate = project_dir / f"{session_id}.jsonl"
         if candidate.exists():
             return candidate
+    print(f"[context-profiler] session file not found for id={session_id}, tried {SESSIONS_BASE / hashed_cwd}", file=sys.stderr)
     return None
 
 
@@ -99,11 +108,12 @@ def analyze_session(session_file: Path) -> dict:
                 usage_sequence.append(total)
                 latest_usage = u
 
-    # Detect compaction events: consecutive total_input_tokens drop >10%
+    # Detect compaction events: total_input_tokens drops >40% AND absolute drop >5000.
+    # A stricter threshold avoids false positives from short queries following long ones.
     compaction_events = []
     for i in range(1, len(usage_sequence)):
         prev, cur = usage_sequence[i - 1], usage_sequence[i]
-        if prev > 0 and cur < prev * 0.9:
+        if prev > 0 and cur < prev * 0.6 and (prev - cur) > 5000:
             compaction_events.append({"at_turn": i, "before": prev, "after": cur})
 
     # Accumulate token costs from tool_results, assistant text, user messages, tool_use metadata
@@ -148,7 +158,16 @@ def analyze_session(session_file: Path) -> dict:
                 elif block.get("type") == "tool_result":
                     tid = block.get("tool_use_id")
                     raw = block.get("content", "")
-                    if not isinstance(raw, str):
+                    # content can be a string or a list of content blocks
+                    if isinstance(raw, list):
+                        text_parts = []
+                        for item in raw:
+                            if isinstance(item, dict) and item.get("type") == "text":
+                                text_parts.append(item.get("text", ""))
+                            elif isinstance(item, str):
+                                text_parts.append(item)
+                        raw = "\n".join(text_parts)
+                    if not isinstance(raw, str) or not raw:
                         continue
                     tokens = count_tokens(raw)
                     tool = tool_uses.get(tid, {})
@@ -228,8 +247,11 @@ def main():
 
     stats = analyze_session(session_file)
 
-    with open(STATS_FILE, "w", encoding="utf-8") as f:
+    # Atomic write: write to temp file then rename to prevent truncated reads
+    tmp = STATS_FILE.with_suffix(".tmp")
+    with open(tmp, "w", encoding="utf-8") as f:
         json.dump(stats, f, indent=2, ensure_ascii=False)
+    tmp.replace(STATS_FILE)
 
 
 if __name__ == "__main__":
